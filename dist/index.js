@@ -840,11 +840,6 @@ module.exports = (function(e, t) {
     r(63).config();
     const { WakaTimeClient: n, RANGE: i } = r(650);
     const s = r(0);
-    console.log(
-      process.env.GIST_ID,
-      process.env.GH_TOKEN,
-      process.env.WAKATIME_API_KEY
-    );
     const { GIST_ID: o, GH_TOKEN: a, WAKATIME_API_KEY: u } = process.env;
     const p = new n(u);
     const c = new s({ auth: `token ${a}` });
@@ -873,7 +868,8 @@ module.exports = (function(e, t) {
       }
       try {
         const e = Object.keys(t.data.files)[0];
-        console.log(e, "我是filename", e);
+        console.log(e, o);
+        console.log(r);
         await c.gists.update({
           gist_id: o,
           files: {
@@ -884,7 +880,7 @@ module.exports = (function(e, t) {
           }
         });
       } catch (e) {
-        console.error(`Unable to update gist\n${e}`);
+        console.error(`Unable to update gist1\n${e}`);
       }
     }
     const d = [
