@@ -53,7 +53,7 @@ async function updateGist(stats) {
       }
     });
   } catch (error) {
-    console.error(`Unable to update gist\n${error}`);
+    console.error(`Unable to update gist1\n${error}`);
   }
 }
 
