@@ -17,11 +17,6 @@ async function main() {
   await updateGist(stats);
 }
 
-function trimRightStr(str, len) {
-  // Ellipsis takes 3 positions, so the index of substring is 0 to total length - 3.
-  return str.length > len ? str.substring(0, len - 3) + "..." : str;
-}
-
 async function updateGist(stats) {
   let gist;
   try {
@@ -31,21 +26,19 @@ async function updateGist(stats) {
   }
 
   const lines = [];
-  for (let i = 0; i < Math.min(stats.data.languages.length, 5); i++) {
+  for (let i = 0; i < Math.min(stats.data.languages.length, 4); i++) {
     const data = stats.data.languages[i];
     const { name, percent, text: time } = data;
 
     const line = [
-      trimRightStr(name, 10).padEnd(10),
-      time.padEnd(14),
-      generateBarChart(percent, 21),
+      name.padEnd(11),
+      time.padStart(14) + " ",
+      unicodeProgressBar(percent + 15),
       String(percent.toFixed(1)).padStart(5) + "%"
     ];
 
     lines.push(line.join(" "));
   }
-
-  if (lines.length == 0) return;
 
   try {
     // Get original filename to update that same file
@@ -64,19 +57,55 @@ async function updateGist(stats) {
   }
 }
 
-function generateBarChart(percent, size) {
-  const syms = "░▏▎▍▌▋▊▉█";
+const bar_styles = [
+  "▁▂▃▄▅▆▇█",
+  "⣀⣄⣤⣦⣶⣷⣿",
+  "⣀⣄⣆⣇⣧⣷⣿",
+  "○◔◐◕⬤",
+  "□◱◧▣■",
+  "□◱▨▩■",
+  "□◱▥▦■",
+  "░▒▓█",
+  "░█",
+  "⬜⬛",
+  "⬛⬜",
+  "▱▰",
+  "▭◼",
+  "▯▮",
+  "◯⬤",
+  "⚪⚫"
+];
 
-  const frac = Math.floor((size * 8 * percent) / 100);
-  const barsFull = Math.floor(frac / 8);
-  if (barsFull >= size) {
-    return syms.substring(8, 9).repeat(size);
+function unicodeProgressBar(p, style = 7, min_size = 20, max_size = 20) {
+  let d;
+  let full;
+  let m;
+  let middle;
+  let r;
+  let rest;
+  let x;
+  let min_delta = Number.POSITIVE_INFINITY;
+  const bar_style = bar_styles[style];
+  const full_symbol = bar_style[bar_style.length - 1];
+  const n = bar_style.length - 1;
+  if (p === 100) return full_symbol.repeat(max_size);
+
+  p = p / 100;
+  for (let i = max_size; i >= min_size; i--) {
+    x = p * i;
+    full = Math.floor(x);
+    rest = x - full;
+    middle = Math.floor(rest * n);
+    if (p !== 0 && full === 0 && middle === 0) middle = 1;
+    d = Math.abs(p - (full + middle / n) / i) * 100;
+    if (d < min_delta) {
+      min_delta = d;
+      m = bar_style[middle];
+      if (full === i) m = "";
+      r = full_symbol.repeat(full) + m + bar_style[0].repeat(i - full - 1);
+    }
   }
-  const semi = frac % 8;
-
-  return [syms.substring(8, 9).repeat(barsFull), syms.substring(semi, semi + 1)]
-    .join("")
-    .padEnd(size, syms.substring(0, 1));
+  return r;
 }
 
 (async () => {
