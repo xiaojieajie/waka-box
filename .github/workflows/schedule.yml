@@ -4,8 +4,8 @@ on:
     branches: master
 
   schedule:
-    # 每3小时跑一次
-    - cron: "0 */3 * * *"
+    # 每6小时跑一次
+    - cron: "0 */6 * * *"
 jobs:
   update-gist:
     runs-on: ubuntu-latest
